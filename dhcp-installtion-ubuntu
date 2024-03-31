@@ -1,0 +1,42 @@
+Please follow below steps to install DHCP service on Ubuntu 22.04 
+
+apt-get update
+
+apt-get install isc-dhcp-server
+
+Once installed if you try to start the service you will get below error
+
+No subnet6 declaration for eth0.
+ ** Ignoring requests on eth0.  If this is not what
+ you want, please write a subnet6 declaration
+ in your dhcpd.conf file for the network segment
+ to which interface eth0 is attached.
+
+If you get above error, please open the dhcp conf file /etc/dhcp/dhcpd.conf
+
+Give the subnet declaration for the eth0 like below
+
+subnet 192.168.0.0 netmask 255.255.255.0 {
+   interface eth0;
+   option routers 8.8.8.8;
+}
+
+Once subnet was provided, please restart the services then the dhcp service will work
+
+systemctl restart isc-dhcp-server.service
+
+After service was started, please provide the loop for which dhcp required like below
+
+subnet 172.27.0.0 netmask 255.255.255.0 {
+   range 172.27.1.0 172.27.1.250;
+   default-lease-time 3600;
+   max-lease-time 3600;
+   option routers 172.27.1..254;
+   option domain-name-servers 172.27.1.10, 8.8.8.8; 
+}
+
+Once pool was created we can check the leases in the below file
+
+/var/lib/dhcp/dhcpd.leases
+
+Allowing the required segments will be taken care by Network team
